@@ -1,0 +1,22 @@
+# Local development database only. In production this becomes the
+# self-hosted PostgreSQL instance on the Oracle Cloud Always Free VM
+# (Section 14.1) — installed directly on the VM, not necessarily via Docker,
+# though Docker works fine there too.
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: vu_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vu_admin
+      POSTGRES_PASSWORD: change_me_locally
+      POSTGRES_DB: vu_lecture_intel
+    ports:
+      - "5432:5432"
+    volumes:
+      - vu_pg_data:/var/lib/postgresql/data
+
+volumes:
+  vu_pg_data:

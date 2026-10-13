@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .notes-md { line-height: 1.75; font-size: 1.02rem; }
+  .notes-md h1, .notes-md h2, .notes-md h3 { margin: 1.4em 0 0.5em; color: #0f172a; }
+  .notes-md h1 { font-size: 1.4rem; }
+  .notes-md h2 { font-size: 1.2rem; }
+  .notes-md h3 { font-size: 1.05rem; }
+  .notes-md table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  .notes-md th, .notes-md td { border: 1px solid #d5dbe3; padding: 8px 10px; text-align: left; vertical-align: top; }
+  .notes-md th { background: #f1f5f9; }
+  .notes-md ul, .notes-md ol { padding-left: 1.5em; }
+  .notes-md code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+  .notes-md hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5em 0; }
+</style>
+<p><a href="/courses/{{ lecture.course_id }}" class="muted">← Back to course</a></p>
+<div class="card">
+  <h2>{{ lecture.title }}</h2>
+  <p class="muted">Status: {{ lecture.processing_status.value }} · Duration: {{ (lecture.duration_seconds // 60) if lecture.duration_seconds else '—' }} min</p>
+</div>
+
+{% if slides %}
+<div class="card">
+  <h3>Slides / Keyframes ({{ slides|length }})</h3>
+  <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+    {% for s in slides %}
+    <div style="width: 260px;">
+      <img src="{{ s.asset_url }}" style="width: 100%; border: 1px solid #ddd; border-radius: 4px;" />
+      <p class="muted" style="margin: 4px 0;">[{{ "%d:%02d"|format(s.timestamp // 60, s.timestamp % 60) }}] {{ s.asset_type }}</p>
+      {% if s.ocr_text %}<p style="font-size: 0.85em;">{{ s.ocr_text[:200] }}{% if s.ocr_text|length > 200 %}…{% endif %}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if topics %}
+<div class="card">
+  <h3>Topics</h3>
+  <ul>
+    {% for t in topics %}
+    <li><strong>{{ t.name }}</strong> — {{ t.description }}
+      <span class="muted">(difficulty {{ "%.2f"|format(t.difficulty_score) }}, importance {{ "%.2f"|format(t.importance_score) }}{% if t.start_time is not none %}, {{ "%d:%02d"|format(t.start_time // 60, t.start_time % 60) }}{% if t.end_time is not none %}–{{ "%d:%02d"|format(t.end_time // 60, t.end_time % 60) }}{% endif %}{% endif %})
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if chapters %}
+<div class="card">
+  <h3>Chapters</h3>
+  <ul>
+    {% for c in chapters %}
+    <li><strong>{{ "%d:%02d"|format(c.start_time // 60, c.start_time % 60) }}</strong> — {{ c.title }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if notes %}
+<div class="card">
+  <h3>Study Notes</h3>
+  {% for n in notes %}
+  <div class="notes-md">{{ n.rendered_html|safe }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if questions %}
+<div class="card">
+  <h3>Quiz ({{ questions|length }} questions)</h3>
+  {% for q in questions %}
+  <div style="margin-bottom: 1.2em;">
+    <p><strong>Q{{ loop.index }}.</strong> {{ q.text }} <span class="muted">({{ q.difficulty }})</span></p>
+    <ul>
+      {% for key, opt in q.options.items() %}
+      <li{% if key == q.correct_answer %} style="font-weight:bold; color: #0a7a3d;"{% endif %}>{{ key }}) {{ opt }}</li>
+      {% endfor %}
+    </ul>
+    {% if q.explanation %}<p class="muted">Explanation: {{ q.explanation }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Full Transcript ({{ chunks|length }} chunks)</h3>
+  <div style="max-height: 500px; overflow-y: auto;">
+    {% for c in chunks %}
+    <p>
+      <span class="muted">[{{ "%d:%02d"|format(c.start_time // 60, c.start_time % 60) }}]</span>
+      {{ c.text }}
+    </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

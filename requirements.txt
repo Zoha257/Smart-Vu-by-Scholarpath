@@ -1,0 +1,41 @@
+# --- Web framework ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+jinja2==3.1.4
+itsdangerous==2.2.0
+
+# --- Settings / config ---
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# --- Database ---
+sqlalchemy==2.0.35
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+pgvector==0.3.4
+alembic==1.13.2
+
+# --- Object storage (Cloudflare R2, S3-compatible) ---
+boto3==1.35.24
+
+# --- AI / ML clients ---
+groq==0.11.0
+sentence-transformers==3.1.1
+Pillow==10.4.0
+numpy==1.26.4
+
+# --- Video/audio handling ---
+ffmpeg-python==0.2.0
+yt-dlp==2024.9.27
+
+# --- Real-ESRGAN (optional visual enhancement) ---
+# realesrgan==...
+# basicsr==...
+
+# --- Utilities ---
+httpx==0.27.2
+python-dotenv==1.0.1
+tenacity==9.0.0
+loguru==0.7.2
+markdown==3.6

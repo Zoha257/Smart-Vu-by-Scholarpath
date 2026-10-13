@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+weights/
+*.egg-info/
+.DS_Store
+
+.env
+.env.*
+!.env.example
+*.bak
+.venv/
+uploads/
+__pycache__/

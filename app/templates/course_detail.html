@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/" class="muted">← All courses</a></p>
+<div class="card">
+  <h2>{{ course.course_code }} — {{ course.title }}</h2>
+  <p class="muted">{{ course.description }}</p>
+</div>
+
+<div class="card">
+  <h2>Add Lecture</h2>
+  <form method="post" action="/courses/{{ course.id }}/lectures/create" enctype="multipart/form-data" id="add-lecture-form">
+    <label>Title</label>
+    <input name="title" placeholder="Lecture 5 — Recursion" required>
+    <label>Lecture number</label>
+    <input name="lecture_number" type="number" min="1" required>
+
+    <label>Video source</label>
+    <div class="toggle-row">
+      <label><input type="radio" name="source_mode" value="url" checked onchange="toggleSourceMode()"> Paste a URL</label>
+      <label><input type="radio" name="source_mode" value="upload" onchange="toggleSourceMode()"> Upload a file</label>
+    </div>
+
+    <div id="source-url-field">
+      <label>Source URL (VU OCW preferred, else YouTube — Section 21.3)</label>
+      <input name="source_url" placeholder="https://ocw.vu.edu.pk/...">
+      <p class="hint">Fetched by the pipeline at ingestion time (yt-dlp / direct download).</p>
+    </div>
+
+    <div id="source-upload-field" style="display:none">
+      <label>Video file</label>
+      <input name="video_file" type="file" accept=".mp4,.mov,.mkv,.webm,.avi">
+      <p class="hint">Use this if a URL fetch has been unreliable (e.g. YouTube's anti-bot
+      challenge) — download the lecture yourself and upload the file here instead.
+      Streamed to disk, deleted automatically once ingestion completes (Section 21.3).</p>
+    </div>
+
+    <button type="submit">Add lecture</button>
+  </form>
+</div>
+
+<script>
+function toggleSourceMode() {
+  const isUpload = document.querySelector('input[name="source_mode"]:checked').value === 'upload';
+  document.getElementById('source-url-field').style.display = isUpload ? 'none' : 'block';
+  document.getElementById('source-upload-field').style.display = isUpload ? 'block' : 'none';
+  document.querySelector('input[name="source_url"]').required = !isUpload;
+}
+</script>
+
+<div class="card">
+  <h2>Lectures</h2>
+  {% if lectures %}
+  <table>
+    <thead><tr><th>#</th><th>Title</th><th>Source</th><th>Status</th><th>Duration</th><th></th></tr></thead>
+    <tbody>
+      {% for l in lectures %}
+      <tr>
+        <td>{{ l.lecture_number }}</td>
+        <td>{{ l.title }}</td>
+        <td class="muted">
+          {% if l.source_type.value == 'upload' %}Uploaded file
+          {% else %}<a href="{{ l.source_url }}" target="_blank" rel="noopener">URL ↗</a>{% endif %}
+        </td>
+        <td><span class="status {{ l.processing_status.value }}">{{ l.processing_status.value }}</span>
+            {% if l.processing_error %}<div class="muted warn">{{ l.processing_error[:80] }}</div>{% endif %}
+        </td>
+        <td class="muted">{{ (l.duration_seconds // 60) if l.duration_seconds else '—' }} min</td>
+        <td>
+          <a href="/lectures/{{ l.id }}/view" class="secondary" style="margin-right: 6px;">View</a>
+          <form class="inline" method="post" action="/lectures/{{ l.id }}/trigger" style="display:inline;">
+            <button type="submit" class="secondary">Process</button>
+          </form>
+          <form class="inline" method="post" action="/lectures/{{ l.id }}/delete" style="display:inline;"
+                onsubmit="return confirm('Delete this lecture and all its generated content?');">
+            <button type="submit" class="secondary" style="color:#b00020;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No lectures yet — add one above.</p>
+  {% endif %}
+</div>
+{% endblock %}

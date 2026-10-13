@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Ingestion Budget (Section 22.7)</h2>
+  <p class="muted">Lectures touched today: <strong>{{ today_count }}</strong> / soft cap <strong>{{ daily_cap }}</strong> — shared Groq rate-limit budget with the Client App (Section 20.7, 25.12).</p>
+</div>
+
+<div class="card">
+  <h2>Add Course</h2>
+  <form method="post" action="/courses/create">
+    <label>Course code</label>
+    <input name="course_code" placeholder="CS101" required>
+    <label>Title</label>
+    <input name="title" placeholder="Introduction to Programming" required>
+    <label>Description</label>
+    <textarea name="description" rows="2"></textarea>
+    <button type="submit">Create course</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Courses</h2>
+  {% if courses %}
+  <table>
+    <thead><tr><th>Code</th><th>Title</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>{{ c.course_code }}</td>
+        <td>{{ c.title }}</td>
+        <td class="muted">{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+        <td><a class="btn" href="/courses/{{ c.id }}">Manage lectures →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No courses yet — add one above.</p>
+  {% endif %}
+</div>
+{% endblock %}
